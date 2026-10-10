@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="UTF-8" />
+<title>Ona Dubey · Data Analyst &amp; Data Scientist Portfolio</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="Ona Dubey · Data Analyst / Data Scientist with hands-on experience in SQL, Python, dashboarding, churn analysis, forecasting, and machine learning. Preference: Bangalore." />
+<style>
+  /*
+    Design commitment: a single fixed visual world (pale-black + pastel pink),
+    not adapted to system light/dark: this is a personal brand identity, so the
+    palette stays constant regardless of viewer theme.
+  */
+  :root{
+    --ink: #221f1e;            /* pale black, primary text / structure */
+    --ink-soft: rgba(34,31,30,.46);
+    --ink-faint: rgba(34,31,30,.14);
+    --paper: #faf3f3;          /* warm off-white ground */
+    --paper-alt: #f2e6e8;
+    --pink: #eab7cb;           /* pastel pink, the one accent */
+    --pink-deep: #d98aa9;      /* pink pushed darker, for text-on-light-pink */
+    --pink-wash: #f7e1e9;
+    --mono: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", "Menlo", monospace;
+    --sans: -apple-system, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--sans);
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+
+  /* ---------- background pattern: graph grid + faint scattered digits ---------- */
+  .grid-bg{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background-image:
+      linear-gradient(var(--ink-faint) 1px, transparent 1px),
+      linear-gradient(90deg, var(--ink-faint) 1px, transparent 1px);
+    background-size: 12px 12px;
+    -webkit-mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, #000 40%, transparent 92%);
+            mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, #000 40%, transparent 92%);
+    opacity:.55;
+  }
+  .digit-field{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    font-family:var(--mono); font-size:13px; color:var(--ink);
+    opacity:.028; line-height:1.6; letter-spacing:.08em;
+    padding:24px; overflow:hidden; user-select:none;
+  }
+
+  main{ position:relative; z-index:1; }
+
+  a{ color:inherit; }
+
+  /* ---------- top bar / toggle ---------- */
+  .topbar{
+    position:sticky; top:0; z-index:20;
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding:14px clamp(16px,5vw,56px);
+    background:rgba(250,243,243,.86);
+    backdrop-filter: blur(10px) saturate(1.1);
+    border-bottom:1px solid var(--ink-faint);
+  }
+  .brand{
+    font-family:var(--mono); font-weight:600; font-size:13px;
+    letter-spacing:.04em; white-space:nowrap; overflow:hidden;
+  }
+  .brand .dot{ color:var(--pink-deep); }
+  .brand-role{ display:none; }
+  @media (min-width:480px){ .brand-role{ display:inline; } }
+
+  /* folder/browser-style section tabs */
+  .tabbar-wrap{
+    position:sticky; top:var(--topbar-h, 60px); z-index:19;
+    background:rgba(250,243,243,.86); backdrop-filter: blur(10px) saturate(1.1);
+    border-bottom:1px solid var(--ink-faint);
+    padding:0 clamp(16px,5vw,56px);
+    overflow-x:auto; scrollbar-width:none;
+  }
+  .tabbar-wrap::-webkit-scrollbar{ display:none; }
+  .tabbar{ display:flex; align-items:flex-end; gap:4px; width:max-content; max-width:920px; margin:0 auto; }
+  .tabbar a{
+    font-family:var(--mono); font-weight:600; font-size:11.5px; letter-spacing:.03em;
+    color:var(--ink-soft); text-decoration:none; white-space:nowrap;
+    padding:9px 14px; margin-bottom:-1px;
+    border:1px solid var(--ink-faint); border-bottom:1px solid transparent;
+    border-radius:8px 8px 0 0;
+    background:rgba(255,255,255,.4);
+    transition:background .2s ease, color .2s ease, border-color .2s ease;
+  }
+  @media (min-width:600px){
+    .tabbar{ width:100%; }
+    .tabbar a{ padding:9px 18px; flex:1; text-align:center; }
+  }
+  .tabbar a:hover{ background:var(--pink-wash); color:var(--pink-deep); border-color:var(--pink); border-bottom-color:var(--pink-wash); }
+  .tabbar a.active{ background:var(--pink-deep); color:#fff; border-color:var(--pink-deep); border-bottom-color:var(--pink-deep); }
+
+  .toggle-wrap{ display:flex; align-items:center; gap:8px; flex-shrink:0; }
+  @media (min-width:480px){ .toggle-wrap{ gap:12px; } }
+
+  .toggle{
+    display:inline-flex; background:var(--paper-alt);
+    border:1px solid var(--ink-faint); border-radius:999px; padding:5px;
+    font-family:var(--mono); font-size:13px; letter-spacing:.05em;
+    flex-shrink:0;
+  }
+  .toggle button{
+    all:unset; cursor:pointer; padding:10px 16px; border-radius:999px;
+    color:var(--ink-soft); font-family:var(--mono); font-size:12.5px; letter-spacing:.03em;
+    transition:background .25s ease, color .25s ease;
+  }
+  @media (min-width:480px){ .toggle button{ padding:11px 20px; font-size:14px; letter-spacing:.05em; } }
+  .toggle button:hover{ color:var(--ink); }
+  .toggle button.active{ background:var(--ink); color:var(--paper); }
+  body.focus-ai .toggle button.active{ background:var(--pink-deep); color:#fff; }
+  body.focus-data .toggle button.active{ background:var(--ink); color:var(--pink-wash); }
+  .toggle button:focus-visible{ outline:2px solid var(--pink-deep); outline-offset:2px; }
+
+  /* ---------- hero ---------- */
+  .hero{
+    padding:clamp(48px,9vw,96px) clamp(20px,5vw,56px) clamp(32px,6vw,64px);
+    max-width:920px; margin:0 auto;
+  }
+  .eyebrow{
+    font-family:var(--mono); font-size:12px; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--ink-soft); margin:0 0 18px;
+  }
+  h1{
+    font-family:var(--mono); font-weight:700;
+    font-size:clamp(34px,6.4vw,58px); line-height:1.04; letter-spacing:-.01em;
+    margin:0 0 20px; text-wrap:balance;
+  }
+  .role-name{ display:block; }
+  .role-tag{ display:block; color:var(--ink-soft); font-weight:500; font-size:.4em; letter-spacing:.02em; margin-top:12px; }
+  .hero p.pitch{
+    font-family:var(--sans); font-size:17px; line-height:1.65; color:var(--ink);
+    max-width:62ch; margin:0 0 8px;
+  }
+  .hero .pitch .hl{ background:var(--pink-wash); padding:0 3px; border-radius:3px; }
+  .hero .pitch .hl-link{ cursor:pointer; transition:background .2s ease, color .2s ease; }
+  .hero .pitch .hl-link:hover{ background:var(--pink-deep); color:#fff; }
+
+  .contact-row{
+    display:flex; flex-wrap:wrap; gap:6px 18px; margin-top:26px;
+    font-family:var(--mono); font-size:12.5px;
+  }
+  .contact-row a{ text-decoration:none; border-bottom:1px solid var(--ink-faint); padding-bottom:1px; }
+  .contact-row a:hover{ border-color:var(--pink-deep); color:var(--pink-deep); }
+
+  /* stat ticker */
+  .ticker{
+    margin-top:40px; border-top:1px solid var(--ink-faint); border-bottom:1px solid var(--ink-faint);
+    padding:18px 0; overflow:hidden; white-space:nowrap;
+  }
+  .ticker-track{
+    display:inline-flex; gap:56px; font-family:var(--mono); font-size:15px;
+    animation: scroll-left 36s linear infinite;
+  }
+  .ticker:hover .ticker-track{ animation-play-state:paused; }
+  @media (prefers-reduced-motion: reduce){ .ticker-track{ animation:none; } }
+  .ticker-track span{ color:var(--ink-soft); }
+  .ticker-track b{ color:var(--ink); font-weight:700; }
+  .ticker-stat{ cursor:pointer; transition:color .2s ease; }
+  .ticker-stat:hover{ color:var(--pink-deep); }
+  .ticker-stat:hover b{ color:var(--pink-deep); }
+  @keyframes scroll-left{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
+  @keyframes flash-highlight{ 0%{ background:var(--pink-wash); } 100%{ background:transparent; } }
+  .flash{ animation:flash-highlight 3s ease; }
+
+  /* ---------- sections ---------- */
+  section.block{
+    padding:clamp(40px,7vw,72px) clamp(20px,5vw,56px);
+    max-width:920px; margin:0 auto;
+  }
+  .section-head{
+    display:flex; align-items:baseline; gap:14px; margin-bottom:34px;
+  }
+  .section-num{ font-family:var(--mono); font-size:13px; color:var(--pink-deep); font-weight:700; }
+  .section-head h2{
+    font-family:var(--mono); font-size:13px; letter-spacing:.16em; text-transform:uppercase;
+    margin:0; font-weight:700;
+  }
+  .section-head .rule{ flex:1; height:1px; background:var(--ink-faint); }
+
+  /* ---------- experience ---------- */
+  .xp{
+    display:grid; grid-template-columns: 108px 1fr; gap:6px 22px;
+    padding:22px 0; border-top:1px solid var(--ink-faint);
+    position:relative;
+  }
+  @media (max-width:559px){
+    .xp{ grid-template-columns:1fr; gap:4px; }
+  }
+  .xp:last-child{ border-bottom:1px solid var(--ink-faint); }
+  .xp-when{
+    font-family:var(--mono); font-size:12px; color:var(--ink-soft); padding-top:3px;
+  }
+  .xp-when .now{
+    display:inline-block; margin-top:6px; font-size:10px; letter-spacing:.08em;
+    color:var(--pink-deep); border:1px solid var(--pink); border-radius:999px;
+    padding:2px 7px;
+  }
+  .xp-body h3{ margin:0 0 2px; font-size:16.5px; font-weight:700; }
+  .xp-body .org{ font-family:var(--mono); font-size:12px; color:var(--ink-soft); margin-bottom:10px; }
+  .xp-body ul{ margin:0; padding-left:18px; display:grid; gap:8px; }
+  .xp-body li{ font-size:14.5px; line-height:1.6; }
+
+  /* tag highlighting */
+  .tag{
+    border-radius:4px; padding:0 2px; margin:0 -2px;
+    transition: background .28s ease, color .28s ease, opacity .28s ease, box-shadow .28s ease;
+    box-shadow: inset 0 -2px 0 0 transparent;
+  }
+  .tag[data-tag="ai"]{ box-shadow: inset 0 -2px 0 0 var(--pink); }
+  .tag[data-tag="data"]{ box-shadow: inset 0 -2px 0 0 var(--ink-faint); }
+
+  body.focus-ai .tag[data-tag="data"]{ opacity:.34; box-shadow:none; }
+  body.focus-ai .tag[data-tag="ai"]{
+    background:var(--pink); color:var(--ink); font-weight:600; box-shadow:none;
+  }
+  body.focus-data .tag[data-tag="ai"]{ opacity:.34; box-shadow:none; }
+  body.focus-data .tag[data-tag="data"]{
+    background:var(--ink); color:var(--pink-wash); font-weight:600; box-shadow:none;
+  }
+
+  /* ---------- projects ---------- */
+  .projects{ display:grid; gap:18px; grid-template-columns:1fr; }
+  @media (min-width:760px){ .projects{ grid-template-columns:1fr 1fr; } }
+  .card{
+    border:1px solid var(--ink-faint); border-radius:10px; padding:22px 22px 20px;
+    background:rgba(255,255,255,.35);
+    position:relative; overflow:hidden;
+    display:flex; flex-direction:column; gap:12px;
+  }
+  .card .ghost-num{
+    position:absolute; top:14px; right:14px; font-family:var(--mono); font-weight:700;
+    font-size:26px; color:var(--ink); opacity:.1; line-height:1; pointer-events:none;
+  }
+  .card .when{ font-family:var(--mono); font-size:11px; color:var(--ink-soft); letter-spacing:.03em; }
+  .card h3{ margin:0; font-size:16px; font-weight:700; line-height:1.3; }
+  .card ul{ margin:0; padding-left:17px; display:grid; gap:7px; }
+  .card li{ font-size:13.8px; line-height:1.58; }
+  .card .metric-row{
+    display:flex; flex-wrap:wrap; gap:8px; margin-top:auto; padding-top:10px;
+    border-top:1px dashed var(--ink-faint);
+  }
+  .metric{
+    font-family:var(--mono); font-size:12px; padding:4px 9px; border-radius:6px;
+    background:var(--paper-alt); color:var(--ink); white-space:nowrap;
+  }
+  .metric b{ font-weight:700; }
+  .card .team{ font-family:var(--mono); font-size:11px; color:var(--ink-soft); margin-top:-6px; }
+  .card .links{ display:flex; flex-wrap:wrap; gap:6px 14px; font-family:var(--mono); font-size:12px; }
+  .card .links a{ text-decoration:none; color:var(--pink-deep); border-bottom:1px solid var(--pink); padding-bottom:1px; }
+  .card .links a:hover{ color:var(--ink); border-color:var(--ink); }
+  .contact-row .cta{ color:var(--pink-deep); border-color:var(--pink); font-weight:600; }
+  body.focus-ai .metric[data-tag="ai"]{ background:var(--pink); }
+  body.focus-data .metric[data-tag="data"]{ background:var(--ink); color:var(--pink-wash); }
+  body.focus-ai .metric[data-tag="data"],
+  body.focus-data .metric[data-tag="ai"]{ opacity:.4; }
+
+  /* ---------- skills ---------- */
+  .skill-groups{ display:grid; gap:22px; }
+  @media (min-width:640px){ .skill-groups{ grid-template-columns:1fr 1fr; gap:28px 32px; } }
+  .skill-group h4{
+    font-family:var(--mono); font-size:11.5px; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--ink-soft); margin:0 0 10px; font-weight:600;
+  }
+  .chip-row{ display:flex; flex-wrap:wrap; gap:8px; }
+  .skill-note{ font-family:var(--mono); font-size:11px; color:var(--ink-soft); margin-top:8px; }
+  .chip{
+    font-family:var(--mono); font-size:12.5px; padding:6px 11px; border-radius:6px;
+    border:1px solid var(--ink-faint); background:transparent;
+    transition:background .25s ease, color .25s ease, border-color .25s ease, opacity .25s ease;
+  }
+  body.focus-ai .chip[data-tag="ai"]{ background:var(--pink); border-color:var(--pink); font-weight:600; }
+  body.focus-ai .chip[data-tag="data"]{ opacity:.4; }
+  body.focus-data .chip[data-tag="data"]{ background:var(--ink); color:var(--pink-wash); border-color:var(--ink); font-weight:600; }
+  body.focus-data .chip[data-tag="ai"]{ opacity:.4; }
+  .skill-hint{ font-family:var(--mono); font-size:12px; color:var(--ink-soft); margin:-6px 0 18px; }
+  .chip[data-skill]{ cursor:pointer; }
+  .chip[data-skill]:hover{ border-color:var(--pink-deep); color:var(--pink-deep); }
+  .chip.chip-active{ background:var(--pink-deep); border-color:var(--pink-deep); color:#fff; font-weight:600; }
+  .skill-detail{
+    display:none; flex-wrap:wrap; gap:8px; margin-top:12px; padding-top:12px;
+    border-top:1px dashed var(--ink-faint);
+  }
+  .skill-detail.open{ display:flex; }
+  .skill-pill{
+    font-family:var(--mono); font-size:11px; color:var(--pink-deep);
+    background:var(--pink-wash); border:1px solid var(--pink); border-radius:999px;
+    padding:5px 12px; cursor:pointer; transition:background .2s ease, color .2s ease;
+  }
+  .skill-pill:hover{ background:var(--pink-deep); color:#fff; }
+
+  footer{
+    padding:40px clamp(20px,5vw,56px) 64px; max-width:920px; margin:20px auto 0;
+    font-family:var(--mono); font-size:12px; color:var(--ink-soft);
+    border-top:1px solid var(--ink-faint);
+  }
+
+  ::selection{ background:var(--pink); color:var(--ink); }
+</style>
+
+<div class="grid-bg" aria-hidden="true"></div>
+<div class="digit-field" id="digitField" aria-hidden="true"></div>
+
+<div class="topbar">
+  <div class="brand">Ona Dubey <span class="dot">·</span> <span class="brand-role" id="brandRole">data analyst / data scientist</span></div>
+  <div class="toggle-wrap">
+    <div class="toggle" role="group" aria-label="Focus filter">
+      <button type="button" data-mode="" class="active">ALL</button>
+      <button type="button" data-mode="data">DATA</button>
+      <button type="button" data-mode="ai">ML</button>
+    </div>
+  </div>
+</div>
+
+<main>
+  <section class="hero">
+    <p class="eyebrow" id="eyebrow">Portfolio · Data Analytics &amp; Applied Machine Learning</p>
+    <h1><span class="role-name">Ona Dubey</span><span class="role-tag" id="roleTag">Data Analyst &amp; Data Scientist</span></h1>
+    <p class="pitch">I'm a BTech graduate in Data Science, Economics, and Business from Plaksha University. I'm most interested in where data meets human behaviour: churn, pricing, choice. SQL and Python are where I live day to day: <span class="hl">dashboards</span>, <span class="hl">churn analysis</span>, <span class="hl">forecasting</span>. Beyond that it spans two ends of the spectrum: deep learning, like a <span class="hl hl-link" data-target="proj-ct">ResNet18/GoogleNet ensemble</span> for CT-scan classification (<span class="hl">99.74% accurate</span>), and classical statistics, like <span class="hl hl-link" data-target="proj-dv">logistic regression</span> on NFHS-5 survey data and <span class="hl hl-link" data-target="proj-markov">Markov chains</span> on e-commerce clickstreams. Toggle above to see which side any given line comes from.</p>
+    <div class="contact-row">
+    <a class="cta" href="resume/Ona_Dubey_Resume.pdf" target="_blank" rel="noopener">Résumé (PDF)</a>
+    <a href="mailto:dubeyona@gmail.com">dubeyona@gmail.com</a>
+    <a href="tel:+919811140544">+91 98111 40544</a>
+    <a href="https://github.com/onadubey" target="_blank" rel="noopener">github.com/onadubey</a>
+    <a href="https://linkedin.com/in/ona-dubey-bbb039214/" target="_blank" rel="noopener">linkedin.com/in/ona-dubey-bbb039214/</a>
+    <span>Preference: Bangalore</span>
+    </div>
+
+    <div class="ticker" aria-hidden="true">
+      <div class="ticker-track" id="tickerTrack"></div>
+    </div>
+  </section>
+
+  <div class="tabbar-wrap">
+    <nav class="tabbar" aria-label="Section navigation">
+      <a href="#experience" class="active">Experience</a>
+      <a href="#projects">Projects</a>
+      <a href="#skills">Skills</a>
+      <a href="#education">Education</a>
+    </nav>
+  </div>
+
+  <section class="block" id="experience">
+    <div class="section-head">
+      <span class="section-num">01</span>
+      <h2>Experience</h2>
+      <span class="rule"></span>
+    </div>
+
+    <div class="xp" id="exp-airtel">
+      <div class="xp-when">2026</div>
+      <div class="xp-body">
+        <h3>Airtel - Engineering Intern</h3>
+        <div class="org">Airtel · XTelify · Gurugram, India</div>
+        <ul>
+          <li>Built FlowCraft, a <span class="tag" data-tag="data">no-code chatbot builder on a React / FastAPI / MongoDB stack</span>, to help non-technical teams <span class="tag" data-tag="ai">design, configure, and test multi-intent conversational bots</span> without engineering involvement.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="xp" id="exp-pwc">
+      <div class="xp-when">2025</div>
+      <div class="xp-body">
+        <h3>PwC - Intern</h3>
+        <div class="org">PwC · Strategy&amp; · Gurugram, India</div>
+        <ul>
+          <li>Conducted <span class="tag" data-tag="data">competitive landscape and customer sentiment analysis</span> for Strategy&amp;'s clients, focusing on <span class="tag" data-tag="data">expansion strategies and market entry opportunities</span>, modelled and presented in <span class="tag" data-tag="data">Excel</span>.</li>
+          <li>Synthesised research findings into strategic recommendations on product positioning and <span class="tag" data-tag="ai">AI-driven capability development</span>.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="xp" id="exp-oyo">
+      <div class="xp-when">2024</div>
+      <div class="xp-body">
+        <h3>OYO Rooms - Technology Intern, Data Science</h3>
+        <div class="org">OYO Rooms · Gurugram, India</div>
+        <ul>
+          <li>Quantified <span class="tag" data-tag="data">customer churn</span> impact by deriving actionable insights on the cost of losing a customer, using measurable factors like <span class="tag" data-tag="data">booking cancellations, public sentiment, repeat booking trends, and app activity</span>.</li>
+          <li>Used <span class="tag" data-tag="data">SQL (end to end, through Metabase)</span> to build <span class="tag" data-tag="data">dashboards for data extraction, transformation, and graphical analysis</span>, and studied public sentiment through online reviews to quantify customer loss impact.</li>
+          <li>Analysed <span class="tag" data-tag="data">app usage data, booking trends, stuck rates, and customer retention metrics</span> across geographies and property types, leading to insights on rebooking behaviour, retention, and business optimisation.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="xp" id="exp-ey">
+      <div class="xp-when">2024</div>
+      <div class="xp-body">
+        <h3>EY - AI Project</h3>
+        <div class="org">EY (Ernst &amp; Young) · Remote, India</div>
+        <ul>
+          <li>Predicted <span class="tag" data-tag="ai">state-wise violent crime counts (2016–2021)</span> across Indian states to aid law enforcement resource allocation.</li>
+          <li>Used <span class="tag" data-tag="ai">Random Forest Regression and XGBoost</span> for predictive modeling, with <span class="tag" data-tag="ai">RMSE</span> to assess accuracy, plus <span class="tag" data-tag="data">data pre-processing and missing-value imputation in Excel</span>.</li>
+          <li>Processed government crime data, <span class="tag" data-tag="data">graphically analysing high/low RMSE cases</span> to refine forecasting and validate real-world applicability.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="projects">
+    <div class="section-head">
+      <span class="section-num">02</span>
+      <h2>Projects</h2>
+      <span class="rule"></span>
+    </div>
+
+    <div class="projects">
+      <div class="card" id="proj-ct">
+        <span class="ghost-num">01</span>
+        <div class="when">Jan – May 2024</div>
+        <h3>Brain Injury Classification Using CT Scans</h3>
+        <div class="team">Team of 4 · Deep Learning</div>
+        <ul>
+          <li>Built an <span class="tag" data-tag="ai">ensemble of modified ResNet18 and GoogleNet</span>, trained on the CQ500 dataset to classify up to 6 brain injuries.</li>
+          <li>Pipeline: preprocessing → growing-region segmentation → ensemble → <span class="tag" data-tag="ai">DWSCSO optimiser</span> → classification via <span class="tag" data-tag="ai">PRSCNN</span>.</li>
+          <li>Multi-class, multi-label classification problem.</li>
+        </ul>
+        <div class="metric-row">
+          <span class="metric" data-tag="ai">Accuracy <b>99.74%</b></span>
+          <span class="metric" data-tag="ai">F1 <b>0.9986</b></span>
+        </div>
+        <div class="links">
+          <a href="decks/heyct-brain-ct-classification.pdf" target="_blank" rel="noopener">Deck (PDF)</a>
+          <a href="https://github.com/Anagha-Vasista/HeyCT_DeepLearning" target="_blank" rel="noopener">Code (GitHub)</a>
+        </div>
+      </div>
+
+      <div class="card" id="proj-taxi">
+        <span class="ghost-num">02</span>
+        <div class="when">Jan – Apr 2025</div>
+        <h3>NYC Taxi Demand Forecasting &amp; Dynamic Pricing</h3>
+        <ul>
+          <li>Built a <span class="tag" data-tag="data">time-series forecasting</span> pipeline, predicting hourly Manhattan fare rates using <span class="tag" data-tag="ai">XGBoost regression</span> on <span class="tag" data-tag="data">3M+ trip records</span> to enable demand-based reverse surge pricing.</li>
+          <li>Applied <span class="tag" data-tag="data">BSTS seasonal decomposition</span> and engineered <span class="tag" data-tag="data">cyclical encodings and lag features</span>, preserving chronological order.</li>
+        </ul>
+        <div class="metric-row">
+          <span class="metric" data-tag="data">R² <b>0.9998</b></span>
+          <span class="metric" data-tag="data">MAPE <b>1.39%</b></span>
+        </div>
+      </div>
+
+      <div class="card" id="proj-audio">
+        <span class="ghost-num">03</span>
+        <div class="when">Jan – Apr 2025</div>
+        <h3>Vehicle Signature Detection Using Surveillance Audio</h3>
+        <div class="team">Team of 3 · mentored by Prof. Srikant Srinivasan</div>
+        <ul>
+          <li>Built a <span class="tag" data-tag="ai">CNN-based multi-label classification pipeline</span> to identify 4 vehicle types from audio when visual surveillance fails.</li>
+          <li>4-layer CNN over <span class="tag" data-tag="data">Mel / STFT spectrograms</span>, after de-noising and band-pass filtering, benchmarked against <span class="tag" data-tag="ai">fine-tuned YAMNet</span> on Kaggle data and on campus IoT-lab recordings.</li>
+          <li>On the Kaggle set the CNN beat YAMNet; on the noisier, multi-label campus data, fine-tuned YAMNet held up better.</li>
+        </ul>
+        <div class="metric-row">
+          <span class="metric" data-tag="ai">Kaggle: CNN <b>99.6%</b> vs YAMNet <b>92.7%</b></span>
+          <span class="metric" data-tag="ai">Campus: YAMNet <b>72.7%</b> exact-match</span>
+        </div>
+        <div class="links">
+          <a href="decks/vehicle-audio-signature-detection.pdf" target="_blank" rel="noopener">Deck (PDF)</a>
+        </div>
+      </div>
+
+      <div class="card" id="proj-geo">
+        <span class="ghost-num">04</span>
+        <div class="when">Financial Econometrics</div>
+        <h3>Geopolitical Stress &amp; Financial Risk: Evidence from India</h3>
+        <div class="team">with Nimrat Kaur</div>
+        <ul>
+          <li>Built India-specific <span class="tag" data-tag="data">GPR / GPT / GPA geopolitical risk indices</span> from <span class="tag" data-tag="data">~84,000 headlines (2010–2023) across 8 Indian outlets</span> via LSEG/Refinitiv, using a <span class="tag" data-tag="data">7-step proximity-search classification methodology</span>.</li>
+          <li>Regressed the indices against the <span class="tag" data-tag="data">ADB Financial Stress Index via OLS</span>, full sample and a locally-filtered subsample.</li>
+        </ul>
+        <div class="metric-row">
+          <span class="metric" data-tag="data">GPT p <b>0.0396</b></span>
+          <span class="metric" data-tag="data">GPR (local) p <b>0.0062</b></span>
+        </div>
+        <div class="links">
+          <a href="decks/geopolitical-risk-financial-stress-india.pdf" target="_blank" rel="noopener">Deck (PDF)</a>
+        </div>
+      </div>
+
+      <div class="card" id="proj-markov">
+        <span class="ghost-num">05</span>
+        <div class="when">Stochastic Processes</div>
+        <h3>Markovian Approach to Model User Behaviour in E-Commerce</h3>
+        <div class="team">with Zoya Ghoshal</div>
+        <ul>
+          <li>Modelled user clickstream behaviour as a <span class="tag" data-tag="data">Discrete-Time Markov Chain</span> on a <span class="tag" data-tag="data">100k-session sample of a 67M-event Kaggle clickstream month</span>, selecting between first- and second-order models via <span class="tag" data-tag="data">log-likelihood, AIC, and BIC</span>.</li>
+          <li>Caught a <span class="tag" data-tag="data">class-masking issue</span> (near-zero recall on rare classes despite high raw accuracy), and validated <span class="tag" data-tag="data">behavioural drift over time via Frobenius norm distance</span> between transition matrices.</li>
+        </ul>
+        <div class="metric-row">
+          <span class="metric" data-tag="data">Top-3 Accuracy <b>97.45%</b></span>
+          <span class="metric" data-tag="data">Balanced Accuracy <b>84.5%</b></span>
+        </div>
+        <div class="links">
+          <a href="decks/markov-ecommerce-user-behaviour.pdf" target="_blank" rel="noopener">Deck (PDF)</a>
+        </div>
+      </div>
+
+      <div class="card" id="proj-dv">
+        <span class="ghost-num">06</span>
+        <div class="when">Gender Economics &amp; Business</div>
+        <h3>Domestic Violence &amp; Reproductive Autonomy in India</h3>
+        <ul>
+          <li>Recoded <span class="tag" data-tag="data">NFHS-5 survey items</span> into <span class="tag" data-tag="data">reproductive autonomy sub-scales (decision-making, communication, freedom from coercion)</span> anchored to the published Reproductive Autonomy Scale, and built binary domestic violence outcomes from the DV module.</li>
+          <li>Ran <span class="tag" data-tag="data">8 logistic regression specifications</span> (individual dimensions, composite index, with/without state fixed effects); flagged the counter-intuitive positive autonomy-DV association as non-causal via a <span class="tag" data-tag="data">limitations discussion on endogeneity and cross-sectional design</span>.</li>
+        </ul>
+        <div class="metric-row">
+          <span class="metric" data-tag="data">Models <b>8</b></span>
+          <span class="metric" data-tag="data">n <b>~12,900</b></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="skills">
+    <div class="section-head">
+      <span class="section-num">03</span>
+      <h2>Skills</h2>
+      <span class="rule"></span>
+    </div>
+    <p class="skill-hint">Click a skill to see where it's actually been used.</p>
+
+    <div class="skill-groups">
+      <div class="skill-group">
+        <h4>Languages</h4>
+        <div class="chip-row">
+          <span class="chip" data-tag="data" data-skill="sql">SQL</span>
+          <span class="chip" data-tag="data" data-skill="mysql">MySQL</span>
+          <span class="chip" data-tag="data" data-skill="sqlite">SQLite</span>
+          <span class="chip" data-skill="python">Python</span>
+        </div>
+        <div class="skill-detail"></div>
+        <div class="skill-note">Completed CS50: SQL (Harvard)</div>
+      </div>
+      <div class="skill-group">
+        <h4>Libraries &amp; Frameworks</h4>
+        <div class="chip-row">
+          <span class="chip" data-tag="data" data-skill="numpy">NumPy</span>
+          <span class="chip" data-tag="data" data-skill="pandas">Pandas</span>
+          <span class="chip" data-tag="data" data-skill="matplotlib">Matplotlib</span>
+          <span class="chip" data-tag="ai" data-skill="sklearn">Scikit-learn</span>
+          <span class="chip" data-tag="ai" data-skill="pytorch">PyTorch</span>
+        </div>
+        <div class="skill-detail"></div>
+      </div>
+      <div class="skill-group">
+        <h4>Domains</h4>
+        <div class="chip-row">
+          <span class="chip" data-tag="data" data-skill="data-analysis">Data Analysis</span>
+          <span class="chip" data-tag="data" data-skill="data-viz">Data Visualisation</span>
+          <span class="chip" data-tag="data" data-skill="stats">Statistical Analysis</span>
+          <span class="chip" data-tag="ai" data-skill="ml">Machine Learning</span>
+          <span class="chip" data-tag="ai" data-skill="dl">Deep Learning</span>
+        </div>
+        <div class="skill-detail"></div>
+      </div>
+      <div class="skill-group">
+        <h4>Additional Software</h4>
+        <div class="chip-row">
+          <span class="chip" data-tag="data" data-skill="excel">Excel</span>
+          <span class="chip" data-tag="data" data-skill="metabase">Metabase</span>
+        </div>
+        <div class="skill-detail"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="education">
+    <div class="section-head">
+      <span class="section-num">04</span>
+      <h2>Education</h2>
+      <span class="rule"></span>
+    </div>
+
+    <div class="xp">
+      <div class="xp-when">2026<br>CGPA 7.37</div>
+      <div class="xp-body">
+        <h3>BTech, Data Science, Economics &amp; Business</h3>
+        <div class="org">Plaksha University</div>
+        <ul>
+          <li><span class="tag" data-tag="data">Relevant coursework: CS50: SQL (Harvard)</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="xp">
+      <div class="xp-when">82.4%</div>
+      <div class="xp-body">
+        <h3>Grade 12</h3>
+        <div class="org">Shiv Nadar School, Noida</div>
+      </div>
+    </div>
+
+    <div class="xp">
+      <div class="xp-when">91%</div>
+      <div class="xp-body">
+        <h3>Grade 10</h3>
+        <div class="org">Kothari International School, Noida</div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div>dubeyona@gmail.com · +91 98111 40544 · github.com/onadubey · linkedin.com/in/ona-dubey-bbb039214/</div>
+    <div style="margin-top:6px;">Built as a data-first portfolio: every underline is a fact.</div>
+  </footer>
+</main>
+
+<script>
+  (function(){
+    var body = document.body;
+    var buttons = document.querySelectorAll('.toggle button');
+    var brandRole = document.getElementById('brandRole');
+    var roleTag = document.getElementById('roleTag');
+    var eyebrow = document.getElementById('eyebrow');
+    var ROLE_TITLES = {
+      '':     { brand: 'data analyst / data scientist', tag: 'Data Analyst &amp; Data Scientist', eyebrow: 'Portfolio &middot; Data Analytics &amp; Applied Machine Learning', doc: 'Ona Dubey · Data Analyst & Data Scientist Portfolio' },
+      'data': { brand: 'data analyst', tag: 'Data Analyst', eyebrow: 'Portfolio &middot; Data Analytics &amp; Statistics', doc: 'Ona Dubey · Data Analyst Portfolio' },
+      'ai':   { brand: 'data scientist', tag: 'Data Scientist', eyebrow: 'Portfolio &middot; Applied Machine Learning', doc: 'Ona Dubey · Data Scientist Portfolio' }
+    };
+    buttons.forEach(function(btn){
+      btn.addEventListener('click', function(){
+        buttons.forEach(function(b){ b.classList.remove('active'); });
+        btn.classList.add('active');
+        var mode = btn.getAttribute('data-mode');
+        body.classList.remove('focus-ai','focus-data');
+        if(mode === 'ai') body.classList.add('focus-ai');
+        if(mode === 'data') body.classList.add('focus-data');
+        var titles = ROLE_TITLES[mode] || ROLE_TITLES[''];
+        if(brandRole) brandRole.textContent = titles.brand;
+        if(roleTag) roleTag.innerHTML = titles.tag;
+        if(eyebrow) eyebrow.innerHTML = titles.eyebrow;
+        document.title = titles.doc;
+      });
+    });
+
+    function scrollAndFlash(id){
+      var target = document.getElementById(id);
+      if(!target) return;
+      target.scrollIntoView({ behavior:'smooth', block:'center' });
+      target.classList.remove('flash');
+      void target.offsetWidth;
+      target.classList.add('flash');
+    }
+
+    document.querySelectorAll('.pitch .hl-link').forEach(function(el){
+      el.addEventListener('click', function(){
+        scrollAndFlash(el.getAttribute('data-target'));
+      });
+    });
+
+    function setTopbarHeightVar(){
+      var topbarEl = document.querySelector('.topbar');
+      if(topbarEl) document.documentElement.style.setProperty('--topbar-h', topbarEl.offsetHeight + 'px');
+    }
+    setTopbarHeightVar();
+    window.addEventListener('resize', setTopbarHeightVar);
+
+    var sectionTabs = document.querySelectorAll('.tabbar a');
+    function setActiveTab(id){
+      sectionTabs.forEach(function(a){
+        a.classList.toggle('active', a.getAttribute('href') === '#' + id);
+      });
+    }
+    function stickyOffset(){
+      var topbarEl = document.querySelector('.topbar');
+      var tabbarEl = document.querySelector('.tabbar-wrap');
+      return (topbarEl ? topbarEl.offsetHeight : 60) + (tabbarEl ? tabbarEl.offsetHeight : 40) + 12;
+    }
+    function scrollToSectionAndFlash(id){
+      var target = document.getElementById(id);
+      if(!target) return;
+      var top = target.getBoundingClientRect().top + window.pageYOffset - stickyOffset();
+      window.scrollTo({ top: top, behavior:'smooth' });
+      target.classList.remove('flash');
+      void target.offsetWidth;
+      target.classList.add('flash');
+    }
+    sectionTabs.forEach(function(a){
+      a.addEventListener('click', function(e){
+        e.preventDefault();
+        var id = a.getAttribute('href').slice(1);
+        setActiveTab(id);
+        scrollToSectionAndFlash(id);
+      });
+    });
+    if('IntersectionObserver' in window){
+      var spyObserver = new IntersectionObserver(function(entries){
+        entries.forEach(function(entry){
+          if(entry.isIntersecting) setActiveTab(entry.target.id);
+        });
+      }, { rootMargin: '-' + (stickyOffset() + 10) + 'px 0px -70% 0px', threshold: 0 });
+      ['experience','projects','skills','education'].forEach(function(id){
+        var el = document.getElementById(id);
+        if(el) spyObserver.observe(el);
+      });
+    }
+
+    var stats = [
+      { text: 'Airtel Full-Stack Bot Builder', target: 'exp-airtel' },
+      { text: 'PwC Market-Entry Strategy Research', target: 'exp-pwc' },
+      { text: 'SQL Cost-of-Churn Analysis', target: 'exp-oyo' },
+      { text: 'EY Crime-Forecasting Model', target: 'exp-ey' },
+      { text: 'Brain Injury Multi-Label Classifier', target: 'proj-ct' },
+      { text: 'XGBoost Taxi Demand Forecasting', target: 'proj-taxi' },
+      { text: 'CNN Vehicle Audio Classifier', target: 'proj-audio' },
+      { text: 'Geopolitical Risk Index Regression', target: 'proj-geo' },
+      { text: 'Markov Chain User Behaviour Model', target: 'proj-markov' },
+      { text: 'NFHS Domestic Violence Regression', target: 'proj-dv' }
+    ];
+    var track = document.getElementById('tickerTrack');
+    var seq = stats.concat(stats).map(function(s){
+      var parts = s.text.split(/(\d[\d.,%²+]*)/);
+      var inner = parts.map(function(p){
+        return /\d/.test(p) ? '<b>' + p + '</b>' : p;
+      }).join('');
+      return '<span class="ticker-stat" data-target="' + s.target + '">' + inner + '</span>';
+    }).join('<span>·</span>');
+    track.innerHTML = seq;
+
+    track.addEventListener('click', function(e){
+      var stat = e.target.closest('.ticker-stat');
+      if(!stat) return;
+      scrollAndFlash(stat.getAttribute('data-target'));
+    });
+
+    var SKILL_LINKS = {
+      'sql':           [{ text:'SQL Cost-of-Churn Analysis', target:'exp-oyo' }, { text:'CS50: SQL Coursework', target:'education' }],
+      'mysql':         [{ text:'SQL Cost-of-Churn Analysis', target:'exp-oyo' }],
+      'sqlite':        [{ text:'CS50: SQL Coursework', target:'education' }],
+      'python':        [{ text:'Airtel Full-Stack Bot Builder', target:'exp-airtel' }, { text:'Brain Injury Multi-Label Classifier', target:'proj-ct' }, { text:'XGBoost Taxi Demand Forecasting', target:'proj-taxi' }],
+      'numpy':         [{ text:'XGBoost Taxi Demand Forecasting', target:'proj-taxi' }, { text:'Brain Injury Multi-Label Classifier', target:'proj-ct' }],
+      'pandas':        [{ text:'XGBoost Taxi Demand Forecasting', target:'proj-taxi' }],
+      'matplotlib':    [{ text:'EY Crime-Forecasting Model', target:'exp-ey' }],
+      'sklearn':       [{ text:'EY Crime-Forecasting Model', target:'exp-ey' }],
+      'pytorch':       [{ text:'Brain Injury Multi-Label Classifier', target:'proj-ct' }],
+      'data-analysis': [{ text:'SQL Cost-of-Churn Analysis', target:'exp-oyo' }, { text:'PwC Market-Entry Strategy Research', target:'exp-pwc' }, { text:'Markov Chain User Behaviour Model', target:'proj-markov' }, { text:'NFHS Domestic Violence Regression', target:'proj-dv' }],
+      'data-viz':      [{ text:'SQL Cost-of-Churn Analysis', target:'exp-oyo' }],
+      'stats':         [{ text:'EY Crime-Forecasting Model', target:'exp-ey' }, { text:'XGBoost Taxi Demand Forecasting', target:'proj-taxi' }, { text:'Geopolitical Risk Index Regression', target:'proj-geo' }, { text:'Markov Chain User Behaviour Model', target:'proj-markov' }, { text:'NFHS Domestic Violence Regression', target:'proj-dv' }],
+      'ml':            [{ text:'EY Crime-Forecasting Model', target:'exp-ey' }, { text:'XGBoost Taxi Demand Forecasting', target:'proj-taxi' }],
+      'dl':            [{ text:'Brain Injury Multi-Label Classifier', target:'proj-ct' }, { text:'CNN Vehicle Audio Classifier', target:'proj-audio' }],
+      'excel':         [{ text:'PwC Market-Entry Strategy Research', target:'exp-pwc' }, { text:'EY Crime-Forecasting Model', target:'exp-ey' }],
+      'metabase':      [{ text:'SQL Cost-of-Churn Analysis', target:'exp-oyo' }]
+    };
+
+    document.querySelectorAll('.chip[data-skill]').forEach(function(chip){
+      chip.addEventListener('click', function(){
+        var key = chip.getAttribute('data-skill');
+        var group = chip.closest('.skill-group');
+        var detail = group.querySelector('.skill-detail');
+        var alreadyOpen = detail.classList.contains('open') && detail.getAttribute('data-current') === key;
+
+        if(alreadyOpen){
+          detail.classList.remove('open');
+          detail.innerHTML = '';
+          detail.removeAttribute('data-current');
+          chip.classList.remove('chip-active');
+          return;
+        }
+
+        group.querySelectorAll('.chip').forEach(function(c){ c.classList.remove('chip-active'); });
+        chip.classList.add('chip-active');
+
+        var links = SKILL_LINKS[key] || [];
+        detail.innerHTML = links.map(function(l){
+          return '<span class="skill-pill" data-target="' + l.target + '">' + l.text + '</span>';
+        }).join('');
+        detail.setAttribute('data-current', key);
+        detail.classList.add('open');
+      });
+    });
+
+    document.querySelectorAll('.skill-detail').forEach(function(detail){
+      detail.addEventListener('click', function(e){
+        var pill = e.target.closest('.skill-pill');
+        if(!pill) return;
+        scrollAndFlash(pill.getAttribute('data-target'));
+      });
+    });
+
+    var field = document.getElementById('digitField');
+    var chars = '01001101011001110100101101100101RFXGBRESNETCNNRMSEF1SQL0.99741.390.9998';
+    var rows = [];
+    for(var r=0;r<26;r++){
+      var row = '';
+      for(var c=0;c<60;c++){ row += chars[Math.floor(Math.random()*chars.length)]; }
+      rows.push(row);
+    }
+    field.textContent = rows.join('\n');
+  })();
+</script>
+</html>

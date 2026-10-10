@@ -2,7 +2,7 @@
 
 Live site: **https://onadubey.github.io**
 
-Data Analyst / Data Scientist · BTech in Data Science, Economics & Business, Plaksha University.
+BTech in Data Science, Economics & Business, Plaksha University.
 
 | | |
 |---|---|
